@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static Microsoft.DotNet.Docker.Tests.ImageVersion;
@@ -120,12 +121,21 @@ namespace Microsoft.DotNet.Docker.Tests
 
             try
             {
-                _dockerHelper.Run(
-                    image: _imageData.GetImage(DotNetImageType.SDK, _dockerHelper),
-                    name: containerName,
-                    command: $"dotnet new {appType} --framework netcoreapp{_imageData.Version}",
-                    workdir: "/app",
-                    skipAutoCleanup: true);
+                try
+                {
+                    _dockerHelper.RunX(
+                        image: _imageData.GetImage(DotNetImageType.SDK, _dockerHelper),
+                        name: containerName,
+                        command: $"\"mkdir /cores && dotnet new {appType} --framework netcoreapp{_imageData.Version}\"",
+                        workdir: "/app",
+                        skipAutoCleanup: true);
+                }
+                catch (InvalidOperationException e) when (e.Message.Contains("139"))
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(30));
+                    _dockerHelper.Copy($"{containerName}:/cores", "/core");
+                    throw;
+                }
 
                 _dockerHelper.Copy($"{containerName}:/app", appDir);
 

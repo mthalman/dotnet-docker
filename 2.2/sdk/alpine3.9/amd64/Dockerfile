@@ -26,3 +26,11 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true \
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
+
+#RUN ulimit -c unlimited > /dev/null 2>&1
+
+RUN echo "int main() { return 1/0; }" > crash.c
+RUN apk update
+RUN apk add gcc
+RUN apk add libc-dev
+RUN gcc -o crash crash.c

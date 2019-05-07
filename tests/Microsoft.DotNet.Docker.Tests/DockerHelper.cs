@@ -223,5 +223,23 @@ namespace Microsoft.DotNet.Docker.Tests
             string workdirArg = workdir == null ? string.Empty : $" -w {workdir}";
             return ExecuteWithLogging($"run --name {name}{cleanupArg}{workdirArg}{userArg}{detachArg}{publishArgs} {image}{commandArg}");
         }
+
+        public string RunX(
+            string image,
+            string name,
+            string command = null,
+            string workdir = null,
+            string publishArgs = " -p 80",
+            bool detach = false,
+            bool runAsContainerAdministrator = false,
+            bool skipAutoCleanup = false)
+        {
+            string cleanupArg = skipAutoCleanup ? string.Empty : " --rm";
+            string commandArg = command == null ? string.Empty : $" {command}";
+            string detachArg = detach ? " -d -t" : string.Empty;
+            string userArg = runAsContainerAdministrator ? " -u ContainerAdministrator" : string.Empty;
+            string workdirArg = workdir == null ? string.Empty : $" -w {workdir}";
+            return ExecuteWithLogging($"run --name {name}{cleanupArg}{workdirArg}{userArg}{detachArg}{publishArgs} --ulimit core=99999999999:99999999999 --entrypoint \"/bin/sh\" {image} -c {commandArg}");
+        }
     }
 }

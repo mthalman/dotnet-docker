@@ -26,3 +26,5 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true \
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
+
+RUN ulimit -S -c unlimited
