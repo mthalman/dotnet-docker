@@ -20,3 +20,5 @@ stages:
     ${{ if eq(variables['System.TeamProject'], 'public') }}:
       buildMatrixType: platformVersionedOs
       customBuildLegGrouping: pr-build
+    ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+      customBuildLegGrouping: default

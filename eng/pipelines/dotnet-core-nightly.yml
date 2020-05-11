@@ -31,3 +31,5 @@ stages:
       buildMatrixType: platformVersionedOs
       customBuildLegGrouping: pr-build
       windowsArmBuildJobTimeout: 120
+    ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+      customBuildLegGrouping: default

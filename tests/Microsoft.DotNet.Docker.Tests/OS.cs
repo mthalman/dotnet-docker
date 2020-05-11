@@ -24,6 +24,9 @@ namespace Microsoft.DotNet.Docker.Tests
         public const string NanoServer1809 = "nanoserver-1809";
         public const string NanoServer1903 = "nanoserver-1903";
         public const string NanoServer1909 = "nanoserver-1909";
+        public const string WindowsServerCoreLtsc2019 = "windowsservercore-ltsc2019";
+        public const string WindowsServerCore1903 = "windowsservercore-1903";
+        public const string WindowsServerCore1909 = "windowsservercore-1909";
 
         // Helpers
         public const string AlpinePrefix = "alpine";
