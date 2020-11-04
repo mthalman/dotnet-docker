@@ -124,6 +124,9 @@ Tag | Dockerfile
 2.1.23-nanoserver-1809, 2.1-nanoserver-1809, 2.1.23, 2.1 | [Dockerfile](https://github.com/dotnet/dotnet-docker/blob/nightly/src/runtime/2.1/nanoserver-1809/amd64/Dockerfile)
 
 You can retrieve a list of all available tags for dotnet/nightly/runtime at https://mcr.microsoft.com/v2/dotnet/nightly/runtime/tags/list.
+<!--End of generated tags-->
+
+For tags contained in the old dotnet/core-nightly/runtime repository, you can retrieve a list of those tags at https://mcr.microsoft.com/v2/dotnet/core-nightly/runtime/tags/list.
 
 # Support
 
