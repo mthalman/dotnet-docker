@@ -1,17 +1,26 @@
 ARG REPO=mcr.microsoft.com/dotnet/runtime-deps
-FROM $REPO:3.1.25-buster-slim
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
+# Installer image
+FROM amd64/buildpack-deps:buster-curl AS installer
 
-# Install .NET Core Runtime
-RUN dotnet_version=3.1.25 \
-    && curl -fSL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-$dotnet_version-linux-x64.tar.gz \
-    && dotnet_sha512='e5155a0d26837b53bfc9275bfcd69eb7400bd8b2004be69e339f62ce36b6333f1f2da8d391bb98e4cb3630a20b68a0a0f4e6f8d1558a4cb0a53da796a71c214c' \
+ARG SAS_QUERY_STRING
+
+# Retrieve .NET Runtime
+RUN dotnet_version=3.1.26-servicing.22261.2 \
+    && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-linux-x64.tar.gz$SAS_QUERY_STRING \
+    && dotnet_sha512='381797d1e70790131924e3ab25df3eeba7ade1c0113b854fd05f9eb13cfb6569c654f258fe162fb854fe21d6a9f22e3523a847bd48a57f1eefb71d28a8a949c5' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
-    && rm dotnet.tar.gz \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+    && mkdir -p /dotnet \
+    && tar -oxzf dotnet.tar.gz -C /dotnet \
+    && rm dotnet.tar.gz
+
+
+# .NET runtime image
+FROM $REPO:3.1.26-buster-slim
+
+# .NET Runtime version
+ENV DOTNET_VERSION=3.1.26-servicing.22261.2
+
+COPY --from=installer ["/dotnet", "/usr/share/dotnet"]
+
+RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet

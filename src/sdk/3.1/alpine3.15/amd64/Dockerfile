@@ -1,5 +1,21 @@
 ARG REPO=mcr.microsoft.com/dotnet/aspnet
-FROM $REPO:3.1.25-alpine3.15
+# Installer image
+FROM $REPO:3.1.26-alpine3.15 AS installer
+
+ARG SAS_QUERY_STRING
+
+# Install .NET Core SDK
+RUN sdk_version=3.1.420-servicing-015994 \
+    && wget -O dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-linux-musl-x64.tar.gz$SAS_QUERY_STRING \
+    && dotnet_sha512='5914afd5a91ebba30c33c390c8cd836fde9716b4a27b6fd7232d2c160a2401ede6dff92ae556eb1f0e1a2ed578c912d4dd65ff8afb063b83b31123bc4f871c21' \
+    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz
+
+
+# .NET SDK image
+FROM $REPO:3.1.26-alpine3.15
 
 ENV \
     # Unset ASPNETCORE_URLS from aspnet base image
@@ -20,16 +36,10 @@ ENV \
 # Add dependencies for disabling invariant mode (set in base image)
 RUN apk add --no-cache icu-libs
 
-# Install .NET Core SDK
-RUN sdk_version=3.1.419 \
-    && wget -O dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$sdk_version/dotnet-sdk-$sdk_version-linux-musl-x64.tar.gz \
-    && dotnet_sha512='f2afe43d1234007c4dd5794cb3d18a9b5ff50a29719a6b7efe777e4e17fc08e52c76bd67c53a86772e2cff6c382faf20f0d63f250f393601fbf05bbda3a06d6a' \
-    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet ./packs ./sdk ./templates ./LICENSE.txt ./ThirdPartyNotices.txt \
-    && rm dotnet.tar.gz \
-    # Trigger first run experience by running arbitrary cmd
-    && dotnet help
+COPY --from=installer ["/usr/share/dotnet", "/usr/share/dotnet"]
+
+# Trigger first run experience by running arbitrary cmd
+RUN dotnet help
 
 # Install PowerShell global tool
 RUN powershell_version=7.0.11 \

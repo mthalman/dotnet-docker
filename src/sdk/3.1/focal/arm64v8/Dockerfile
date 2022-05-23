@@ -1,3 +1,19 @@
+# Installer image
+FROM arm64v8/buildpack-deps:focal-curl AS installer
+
+ARG SAS_QUERY_STRING
+
+# Install .NET Core SDK
+RUN sdk_version=3.1.420-servicing-015994 \
+    && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-linux-arm64.tar.gz$SAS_QUERY_STRING \
+    && dotnet_sha512='bfd6dccd482fade9d4a4d9d5e167ed35e2c098ddd2c1a78c54fe2c261b6dae2e8a8568879430e8cfa1f425bc99c352403e1e88640c2de7057f7c17cde4e472cb' \
+    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz
+
+
+# .NET SDK image
 FROM arm64v8/buildpack-deps:focal-scm
 
 ENV \
@@ -24,17 +40,10 @@ RUN apt-get update \
         zlib1g \
     && rm -rf /var/lib/apt/lists/*
 
-# Install .NET Core SDK
-RUN sdk_version=3.1.419 \
-    && curl -fSL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$sdk_version/dotnet-sdk-$sdk_version-linux-arm64.tar.gz \
-    && dotnet_sha512='94f398c09b53c10dc3e4ed1f624eee19b18770734956ebb0cb4ac9d789c1a79a891c1934e7c4c3a2bed5326ee1a0417ee89816695ab2436b3db7076328a40b77' \
-    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
-    && rm dotnet.tar.gz \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
-    # Trigger first run experience by running arbitrary cmd
-    && dotnet help
+COPY --from=installer ["/usr/share/dotnet", "/usr/share/dotnet"]
+
+# Trigger first run experience by running arbitrary cmd
+RUN dotnet help
 
 # Install PowerShell global tool
 RUN powershell_version=7.0.11 \

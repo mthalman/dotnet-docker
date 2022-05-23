@@ -5,14 +5,16 @@ ARG REPO=mcr.microsoft.com/dotnet/aspnet
 # Installer image
 FROM mcr.microsoft.com/windows/servercore:20H2-amd64 AS installer
 
+ARG SAS_QUERY_STRING
+
 RUN powershell -Command " `
         $ErrorActionPreference = 'Stop'; `
         $ProgressPreference = 'SilentlyContinue'; `
         `
         # Retrieve .NET Core SDK
-        $sdk_version = '3.1.419'; `
-        Invoke-WebRequest -OutFile dotnet.zip https://dotnetcli.azureedge.net/dotnet/Sdk/$sdk_version/dotnet-sdk-$sdk_version-win-x64.zip; `
-        $dotnet_sha512 = '6fb9d6aeed88e8c9499230dbcd0bf5783c6741d0b5837867449057adfe300cc068caab9303361789441a079acd92b9cb7c73154187ece7fc4b210e2dfdbbca70'; `
+        $sdk_version = '3.1.420-servicing-015994'; `
+        Invoke-WebRequest -OutFile dotnet.zip https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-win-x64.zip$Env:SAS_QUERY_STRING; `
+        $dotnet_sha512 = 'dc4b70df87d069e76f58f617a83c230f52a8a050216a1ab07658a368c1da2f0c3ce19b92c9528b310c9ba49d71f32a7c40cc2759bf64a026ba5c6a54aa52db78'; `
         if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
             Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
             exit 1; `
@@ -41,7 +43,7 @@ RUN powershell -Command " `
             | Remove-Item -Force -Recurse"
 
 # SDK image
-FROM $REPO:3.1.25-nanoserver-20H2
+FROM $REPO:3.1.26-nanoserver-20H2
 
 ENV `
     # Unset ASPNETCORE_URLS from aspnet base image

@@ -3,14 +3,16 @@
 # Installer image
 FROM mcr.microsoft.com/windows/servercore:20H2-amd64 AS installer
 
+ARG SAS_QUERY_STRING
+
 # Retrieve .NET Core Runtime
 RUN powershell -Command `
         $ErrorActionPreference = 'Stop'; `
         $ProgressPreference = 'SilentlyContinue'; `
         `
-        $dotnet_version = '3.1.25'; `
-        Invoke-WebRequest -OutFile dotnet.zip https://dotnetcli.azureedge.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-$dotnet_version-win-x64.zip; `
-        $dotnet_sha512 = 'f694930889dd21d2294946f85bc1a0c0b28c876fcc27ade2b6c102c106469f7baef044153919307ab639337a443b891b7890cd92be2b269e5acd9ec8ada7a1d3'; `
+        $dotnet_version = '3.1.26-servicing.22261.2'; `
+        Invoke-WebRequest -OutFile dotnet.zip https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-win-x64.zip$Env:SAS_QUERY_STRING; `
+        $dotnet_sha512 = 'ce61f0bc892a7d65df65f53bf2025d65951973b69f87b8fed3a42a5335a9a2af12e7eaa5985fc9962f4f6f6ba185dac7070acadca4fa35aa7c1231da99460fb5'; `
         if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
             Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
             exit 1; `
