@@ -4,9 +4,9 @@ FROM arm64v8/buildpack-deps:bionic-curl AS installer
 ARG SAS_QUERY_STRING
 
 # Install .NET Core SDK
-RUN sdk_version=3.1.420-servicing-015994 \
+RUN sdk_version=3.1.420-servicing-016016 \
     && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-linux-arm64.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='bfd6dccd482fade9d4a4d9d5e167ed35e2c098ddd2c1a78c54fe2c261b6dae2e8a8568879430e8cfa1f425bc99c352403e1e88640c2de7057f7c17cde4e472cb' \
+    && dotnet_sha512='ac66b1544fe178153bb85c2e5be584464374ce4c036fc95720547c231c2730312018fbdfc735f9071579749415bc54e1f6b8f080cc2b08d5799a0da941e8a5f5' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \
     && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
@@ -41,6 +41,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=installer ["/usr/share/dotnet", "/usr/share/dotnet"]
+
+RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
 # Trigger first run experience by running arbitrary cmd
 RUN dotnet help

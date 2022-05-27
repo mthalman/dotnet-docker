@@ -1,10 +1,14 @@
 # Installer image
 FROM mcr.microsoft.com/cbl-mariner/base/core:1.0 AS installer
 
-RUN dotnet_version=3.1.26-servicing.22261.2 \
-    && curl -fSL --output dotnet-runtime-deps.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-deps-$dotnet_version-cm.1-x64.rpmSAS_QUERY_STRING \
-    && dotnet_sha512='3e480745451cea4a60bfc253ac10cec6c6005f61854a100782bed11bd9d5899719e552271a357d77301ca1152f30855cd7f099bba89db1061cad777e576bc522' \
+ARG SAS_QUERY_STRING
+
+RUN dotnet_version=3.1.26-servicing.22273.3 \
+    && curl -fSL --output dotnet-runtime-deps.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-deps-3.1.26-cm.1-x64.rpm$SAS_QUERY_STRING \
+    && dotnet_sha512='b9b758318a674c91ef95970c745497acf7c23d8d910df09532ff6e0956d28035c29592b0735a0664b670a052636e4ff1f4e9c86829b6dbe016c7814b105614e7' \
     && echo "$dotnet_sha512  dotnet-runtime-deps.rpm" | sha512sum -c -
+
+FROM mcr.microsoft.com/cbl-mariner/base/core:1.0
 
 RUN tdnf install -y \
         ca-certificates \

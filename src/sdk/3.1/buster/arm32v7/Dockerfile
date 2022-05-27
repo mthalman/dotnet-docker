@@ -4,9 +4,9 @@ FROM arm32v7/buildpack-deps:buster-curl AS installer
 ARG SAS_QUERY_STRING
 
 # Install .NET Core SDK
-RUN sdk_version=3.1.420-servicing-015994 \
+RUN sdk_version=3.1.420-servicing-016016 \
     && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-linux-arm.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='46394c5f0f67fe166c8c39617bf03ca0cd89a64d52a7be401099a94456f9cb8efb9df539692aac0195af2415081575310cfc4885958bee6cd5df9e8df933d148' \
+    && dotnet_sha512='d61cc1a5dc345d4c32bb06bcce1e50d603103294783460c811a87635eb14fc51c58869456f3326cfb689fdb7b379d2410f5db5bf63332aff173814035a319c28' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \
     && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
@@ -41,6 +41,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=installer ["/usr/share/dotnet", "/usr/share/dotnet"]
+
+RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
 # Trigger first run experience by running arbitrary cmd
 RUN dotnet help

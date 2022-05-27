@@ -10,9 +10,9 @@ RUN powershell -Command `
         $ErrorActionPreference = 'Stop'; `
         $ProgressPreference = 'SilentlyContinue'; `
         `
-        $dotnet_version = '3.1.26-servicing.22261.2'; `
+        $dotnet_version = '3.1.26-servicing.22273.3'; `
         Invoke-WebRequest -OutFile dotnet.zip https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-win-x64.zip$Env:SAS_QUERY_STRING; `
-        $dotnet_sha512 = 'ce61f0bc892a7d65df65f53bf2025d65951973b69f87b8fed3a42a5335a9a2af12e7eaa5985fc9962f4f6f6ba185dac7070acadca4fa35aa7c1231da99460fb5'; `
+        $dotnet_sha512 = '5bee2f991d59acfcccb1755de470988db8639a9cbfa567008db2a44f4dc85c8edefbd08725ec23764eb1e79ff2f5103931ae775b34db436f345659c778206605'; `
         if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
             Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
             exit 1; `

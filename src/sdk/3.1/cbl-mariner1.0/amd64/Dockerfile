@@ -5,31 +5,28 @@ FROM $REPO:3.1.26-cbl-mariner1.0 AS installer
 ARG SAS_QUERY_STRING
 
 # Install .NET Core SDK
-RUN sdk_version=3.1.420-servicing-015994 \
-    dotnet_version=3.1.26-servicing.22261.2 \
-    aspnet_version=3.1.25-servicing.22219.10 \
+RUN sdk_version=3.1.420-servicing-016016 \
+    dotnet_version=3.1.26-servicing.22273.3 \
+    aspnet_version=3.1.26-servicing.22274.3 \
     && curl -fSL --output dotnet.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-x64.rpm$SAS_QUERY_STRING \
-    && dotnet_sha512='a78bf266e766e707af01a9fd51c893e39b387ca17c5737ac0c399c7096598b790b114955eb0a158937bc3f725e299db7057694254714068f205e4a259a84c989' \
+    && dotnet_sha512='d6315d38dfbf17db35f5dcf6d82d9ef2d48072d06e29a05ae3b09987cc950559a61bcbf0a41a8d20480f7e4b09b458e1b447dd190368058faa39821280dc2b9c' \
     && echo "$dotnet_sha512  dotnet.rpm" | sha512sum -c - \
     \
     && curl -fSL --output apphost.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-apphost-pack-$dotnet_version-x64.rpm$SAS_QUERY_STRING \
-    && dotnet_sha512='349c3aede6600382d195f3164b12db57f225c9d80dfdeb788e67723621b0050e53c6b881c5f9c739ee549779b4462713cf20f6185be3b3b473d750d75e3b7df8' \
+    && dotnet_sha512='a83e26a32e305a9635229e9bac61edc8e17469da28e713444338e5b92a3674469c1ad5fde14c0a2a04d32607d949c2b155dc077c802107b86e729957143e73e0' \
     && echo "$dotnet_sha512  apphost.rpm" | sha512sum -c - \
     \
-    && curl -fSL --output targeting-pack.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/3.1.0/dotnet-targeting-pack-3.1.0-x64.rpm$SAS_QUERY_STRING \
+    && curl -fSL --output targeting-pack.rpm https://dotnetcli.azureedge.net/dotnet/Runtime/3.1.0/dotnet-targeting-pack-3.1.0-x64.rpm \
     && dotnet_sha512='9111ef4a0083c1fbd969f5adfca8f7b0a2e90eada94771c68ca4d00d34756fb280de153ecce4ad3da4b16698b7add4848f5b6ec24b89a144c2a119a42fb27c85' \
     && echo "$dotnet_sha512  targeting-pack.rpm" | sha512sum -c - \
     \
-    && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/aspnetcore/Runtime/3.1.0/aspnetcore-targeting-pack-3.1.0.rpm$SAS_QUERY_STRING \
+    && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/3.1.0/aspnetcore-targeting-pack-3.1.0.rpm \
     && dotnet_sha512='fdab7122896ff3602d8a25c0b283996973ef0cf4f4d0f9eba429d3a93b2441ebe0e0d0b499b97bb28c43cfb386501cc617ca7ed7c949dd3e45c61db0d5879fd4' \
     && echo "$dotnet_sha512  aspnetcore-targeting-pack.rpm" | sha512sum -c - \
     \
-    && curl -fSL --output netstandard-targeting-pack.rpm https://dotnetcli.azureedge.net/dotnet/Runtime/3.1.0/netstandard-targeting-pack-2.1.0-x64.rpm$SAS_QUERY_STRING \
+    && curl -fSL --output netstandard-targeting-pack.rpm https://dotnetcli.azureedge.net/dotnet/Runtime/3.1.0/netstandard-targeting-pack-2.1.0-x64.rpm \
     && dotnet_sha512='fab41a86b9182b276992795247868c093890c6b3d5739376374a302430229624944998e054de0ff99bddd9459fc9543636df1ebd5392db069ae953ac17ea2880' \
-    && echo "$dotnet_sha512  netstandard-targeting-pack.rpm" | sha512sum -c - \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
-    # Trigger first run experience by running arbitrary cmd
-    && dotnet help
+    && echo "$dotnet_sha512  netstandard-targeting-pack.rpm" | sha512sum -c -
 
 
 # .NET SDK image

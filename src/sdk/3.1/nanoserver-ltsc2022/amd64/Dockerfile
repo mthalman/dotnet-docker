@@ -12,9 +12,9 @@ RUN powershell -Command " `
         $ProgressPreference = 'SilentlyContinue'; `
         `
         # Retrieve .NET Core SDK
-        $sdk_version = '3.1.420-servicing-015994'; `
+        $sdk_version = '3.1.420-servicing-016016'; `
         Invoke-WebRequest -OutFile dotnet.zip https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-win-x64.zip$Env:SAS_QUERY_STRING; `
-        $dotnet_sha512 = 'dc4b70df87d069e76f58f617a83c230f52a8a050216a1ab07658a368c1da2f0c3ce19b92c9528b310c9ba49d71f32a7c40cc2759bf64a026ba5c6a54aa52db78'; `
+        $dotnet_sha512 = 'ccb5418be598f8a58493609a058a04a5b9181ac6fdf9b9b51772646ecbe2ae58e19fe76d2fc8a10c401460259458b658684a4bf4604b6cf28c4ac4eb4e9b0d3c'; `
         if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
             Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
             exit 1; `

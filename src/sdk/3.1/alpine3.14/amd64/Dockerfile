@@ -5,12 +5,12 @@ FROM $REPO:3.1.26-alpine3.14 AS installer
 ARG SAS_QUERY_STRING
 
 # Install .NET Core SDK
-RUN sdk_version=3.1.420-servicing-015994 \
+RUN sdk_version=3.1.420-servicing-016016 \
     && wget -O dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Sdk/$sdk_version/dotnet-sdk-3.1.420-linux-musl-x64.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='5914afd5a91ebba30c33c390c8cd836fde9716b4a27b6fd7232d2c160a2401ede6dff92ae556eb1f0e1a2ed578c912d4dd65ff8afb063b83b31123bc4f871c21' \
+    && dotnet_sha512='e4c383f57eddb94c61ace06ddc1e896e44a0eb37a068a5d533442044dd615ef4478fa1ddd0747835be7b8913a090bd29be45930c8a256ec10a087baede9cf10b' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \
-    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
+    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet ./packs ./sdk ./templates ./LICENSE.txt ./ThirdPartyNotices.txt \
     && rm dotnet.tar.gz
 
 

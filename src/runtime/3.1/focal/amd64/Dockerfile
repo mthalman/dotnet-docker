@@ -6,9 +6,9 @@ FROM amd64/buildpack-deps:focal-curl AS installer
 ARG SAS_QUERY_STRING
 
 # Retrieve .NET Runtime
-RUN dotnet_version=3.1.26-servicing.22261.2 \
+RUN dotnet_version=3.1.26-servicing.22273.3 \
     && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-linux-x64.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='381797d1e70790131924e3ab25df3eeba7ade1c0113b854fd05f9eb13cfb6569c654f258fe162fb854fe21d6a9f22e3523a847bd48a57f1eefb71d28a8a949c5' \
+    && dotnet_sha512='03676885ec4d1f5ba184678a6b774f8e385abfff800a6bcee6f85557b39e9cdde500be49b5d6c956fc95cdfb9f33d31e467548bb498a52bc4fd639b3cb87c8d0' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /dotnet \
     && tar -oxzf dotnet.tar.gz -C /dotnet \
@@ -19,7 +19,7 @@ RUN dotnet_version=3.1.26-servicing.22261.2 \
 FROM $REPO:3.1.26-focal
 
 # .NET Runtime version
-ENV DOTNET_VERSION=3.1.26-servicing.22261.2
+ENV DOTNET_VERSION=3.1.26-servicing.22273.3
 
 COPY --from=installer ["/dotnet", "/usr/share/dotnet"]
 
