@@ -1,13 +1,3 @@
-# Installer image
-FROM mcr.microsoft.com/cbl-mariner/base/core:1.0 AS installer
-
-ARG SAS_QUERY_STRING
-
-RUN dotnet_version=3.1.26-servicing.22273.3 \
-    && curl -fSL --output dotnet-runtime-deps.rpm https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-deps-3.1.26-cm.1-x64.rpm$SAS_QUERY_STRING \
-    && dotnet_sha512='b9b758318a674c91ef95970c745497acf7c23d8d910df09532ff6e0956d28035c29592b0735a0664b670a052636e4ff1f4e9c86829b6dbe016c7814b105614e7' \
-    && echo "$dotnet_sha512  dotnet-runtime-deps.rpm" | sha512sum -c -
-
 FROM mcr.microsoft.com/cbl-mariner/base/core:1.0
 
 RUN tdnf install -y \
@@ -23,10 +13,12 @@ RUN tdnf install -y \
         zlib \
     && tdnf clean all
 
-COPY --from=installer /dotnet-runtime-deps.rpm /dotnet-runtime-deps.rpm
-
 # Install dotnet-runtime-deps package
-RUN rpm --install dotnet-runtime-deps.rpm \
+RUN dotnet_version=3.1.25 \
+    && curl -fSL --output dotnet-runtime-deps.rpm https://dotnetcli.azureedge.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-deps-$dotnet_version-cm.1-x64.rpm \
+    && dotnet_sha512='fd1609546d4459d6e32a9b5d6d408b76cd9b0327b31bc388405d5f87aaabb233c1609a5f4b7868178cddf3517ba286aefe5f25f8e83c5e20bb392cae68f7c3ae' \
+    && echo "$dotnet_sha512  dotnet-runtime-deps.rpm" | sha512sum -c - \
+    && rpm --install dotnet-runtime-deps.rpm \
     && rm dotnet-runtime-deps.rpm
 
 ENV \

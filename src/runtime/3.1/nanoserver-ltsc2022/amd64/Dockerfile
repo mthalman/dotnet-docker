@@ -3,16 +3,14 @@
 # Installer image
 FROM mcr.microsoft.com/windows/servercore:ltsc2022-amd64 AS installer
 
-ARG SAS_QUERY_STRING
-
 # Retrieve .NET Core Runtime
 RUN powershell -Command `
         $ErrorActionPreference = 'Stop'; `
         $ProgressPreference = 'SilentlyContinue'; `
         `
-        $dotnet_version = '3.1.26-servicing.22273.3'; `
-        Invoke-WebRequest -OutFile dotnet.zip https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-win-x64.zip$Env:SAS_QUERY_STRING; `
-        $dotnet_sha512 = '5bee2f991d59acfcccb1755de470988db8639a9cbfa567008db2a44f4dc85c8edefbd08725ec23764eb1e79ff2f5103931ae775b34db436f345659c778206605'; `
+        $dotnet_version = '3.1.25'; `
+        Invoke-WebRequest -OutFile dotnet.zip https://dotnetcli.azureedge.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-$dotnet_version-win-x64.zip; `
+        $dotnet_sha512 = 'f694930889dd21d2294946f85bc1a0c0b28c876fcc27ade2b6c102c106469f7baef044153919307ab639337a443b891b7890cd92be2b269e5acd9ec8ada7a1d3'; `
         if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
             Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
             exit 1; `

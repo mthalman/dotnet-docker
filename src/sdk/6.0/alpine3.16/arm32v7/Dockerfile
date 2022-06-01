@@ -1,5 +1,20 @@
 ARG REPO=mcr.microsoft.com/dotnet/aspnet
-FROM $REPO:6.0.5-alpine3.16-arm32v7
+# Installer image
+FROM $REPO:6.0.6-alpine3.16-arm32v7 AS installer
+
+ARG SAS_QUERY_STRING
+
+# Install .NET SDK
+RUN wget -O dotnet.tar.gz https://dotnetbuilds.blob.core.windows.net/internal/Sdk/6.0.301-rtm.22277.4/dotnet-sdk-6.0.301-linux-musl-arm.tar.gz$SAS_QUERY_STRING \
+    && dotnet_sha512='bd0558f10b9a112258a969afdfc14d770293b75a49b1d8aa15a2a71a492b18643d6a2a9570e055a0fa6a89dab11cd3532c5e02844dffaff2c2aca4aee25099fc' \
+    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet ./packs ./sdk ./sdk-manifests ./templates ./LICENSE.txt ./ThirdPartyNotices.txt \
+    && rm dotnet.tar.gz
+
+
+# .NET SDK image
+FROM $REPO:6.0.6-alpine3.16-arm32v7
 
 ENV \
     # Unset ASPNETCORE_URLS from aspnet base image
@@ -9,7 +24,7 @@ ENV \
     # Do not show first run text
     DOTNET_NOLOGO=true \
     # SDK version
-    DOTNET_SDK_VERSION=6.0.300 \
+    DOTNET_SDK_VERSION=6.0.301-rtm.22277.4 \
     # Disable the invariant mode (set in base image)
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     # Enable correct mode for dotnet watch (only mode supported in a container)
@@ -24,12 +39,7 @@ RUN apk add --no-cache \
         icu-libs \
         git
 
-# Install .NET SDK
-RUN wget -O dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-musl-arm.tar.gz \
-    && dotnet_sha512='515762d63d070e5a0b01a442dfdfa9df02b683b2624ceba81617da4cb21141df47a469c50457962bb5ad6801eb529ca1bf845fc713357192b09201d6db349619' \
-    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet ./packs ./sdk ./sdk-manifests ./templates ./LICENSE.txt ./ThirdPartyNotices.txt \
-    && rm dotnet.tar.gz \
-    # Trigger first run experience by running arbitrary cmd
-    && dotnet help
+COPY --from=installer ["/usr/share/dotnet", "/usr/share/dotnet"]
+
+# Trigger first run experience by running arbitrary cmd
+RUN dotnet help

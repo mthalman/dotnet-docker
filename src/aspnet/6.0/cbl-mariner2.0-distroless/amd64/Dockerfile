@@ -3,6 +3,8 @@ ARG REPO=mcr.microsoft.com/dotnet/runtime
 # Installer image
 FROM mcr.microsoft.com/cbl-mariner/base/core:2.0 AS installer
 
+ARG SAS_QUERY_STRING
+
 RUN tdnf install -y \
         ca-certificates-microsoft \
         gzip \
@@ -10,9 +12,9 @@ RUN tdnf install -y \
     && tdnf clean all
 
 # Retrieve ASP.NET Core
-RUN aspnetcore_version=6.0.5 \
-    && curl -fSL --output aspnetcore.tar.gz https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/$aspnetcore_version/aspnetcore-runtime-$aspnetcore_version-linux-x64.tar.gz \
-    && aspnetcore_sha512='3a2169051da22f3faebba319101c3fb86b1cf8575e3715ebfb82b673e14417370d00b958a252c740a6b0e11a8624e4d4ee41fbfd29a4e73af79752dbbeb1477b' \
+RUN aspnetcore_version=6.0.6-servicing.22268.5 \
+    && curl -fSL --output aspnetcore.tar.gz https://dotnetbuilds.blob.core.windows.net/internal/aspnetcore/Runtime/$aspnetcore_version/aspnetcore-runtime-6.0.6-linux-x64.tar.gz$SAS_QUERY_STRING \
+    && aspnetcore_sha512='1a5c0f85820f0eb589700df94de6dbff45fe4089a37f1cd5b1fac33476a2cbd8d5c6f129e55b3716f5a7a2616f1a5a720c52238f21b28a510a3e5c8bcb8c516c' \
     && echo "$aspnetcore_sha512  aspnetcore.tar.gz" | sha512sum -c - \
     && mkdir -p /dotnet \
     && tar -oxzf aspnetcore.tar.gz -C /dotnet ./shared/Microsoft.AspNetCore.App \
@@ -20,9 +22,9 @@ RUN aspnetcore_version=6.0.5 \
 
 
 # ASP.NET Core image
-FROM $REPO:6.0.5-cbl-mariner2.0-distroless-amd64
+FROM $REPO:6.0.6-cbl-mariner2.0-distroless-amd64
 
 # ASP.NET Core version
-ENV ASPNET_VERSION=6.0.5
+ENV ASPNET_VERSION=6.0.6-servicing.22268.5
 
 COPY --from=installer ["/dotnet", "/usr/share/dotnet"]

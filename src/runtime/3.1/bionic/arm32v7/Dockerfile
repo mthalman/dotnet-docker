@@ -1,26 +1,17 @@
 ARG REPO=mcr.microsoft.com/dotnet/runtime-deps
+FROM $REPO:3.1.25-bionic-arm32v7
 
-# Installer image
-FROM arm32v7/buildpack-deps:bionic-curl AS installer
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
 
-ARG SAS_QUERY_STRING
-
-# Retrieve .NET Runtime
-RUN dotnet_version=3.1.26-servicing.22273.3 \
-    && curl -fSL --output dotnet.tar.gz https://dotnetclimsrc.blob.core.windows.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-3.1.26-linux-arm.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='41abcd90159ca29ae512a76f3f5c5233e508279a5a6aee600802857345e626f87aac8a3875f23835662b74c0d57653fdfe177b30f49c3908c55e9b22ed6fd9c2' \
+# Install .NET Core Runtime
+RUN dotnet_version=3.1.25 \
+    && curl -fSL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Runtime/$dotnet_version/dotnet-runtime-$dotnet_version-linux-arm.tar.gz \
+    && dotnet_sha512='a0950ef427e07e4de7111411fb12389fda15193a84f22ca04c8a43e16bfe451ba34338def07dcfd3cf530cda0b14b4e69dac83e38da753e8cc708d6090c62dfe' \
     && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /dotnet \
-    && tar -oxzf dotnet.tar.gz -C /dotnet \
-    && rm dotnet.tar.gz
-
-
-# .NET runtime image
-FROM $REPO:3.1.26-bionic-arm32v7
-
-# .NET Runtime version
-ENV DOTNET_VERSION=3.1.26-servicing.22273.3
-
-COPY --from=installer ["/dotnet", "/usr/share/dotnet"]
-
-RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+    && mkdir -p /usr/share/dotnet \
+    && tar -oxzf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
