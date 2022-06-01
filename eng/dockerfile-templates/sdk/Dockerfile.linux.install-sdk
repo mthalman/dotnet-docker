@@ -25,7 +25,16 @@
     set sdkVersionFile to when(ARGS["is-internal"],
         VARIABLES[cat("sdk|", dotnetVersion, "|product-version")],
         sdkVersionDir) ^
-    set runtimeVersionVar to when(ARGS["use-local-version-var"], "$dotnet_version", "$DOTNET_VERSION") ^
+    set runtimeVersionDir to when(ARGS["use-local-version-var"], "$dotnet_version", "$DOTNET_VERSION") ^
+    set runtimeVersionFile to when(ARGS["is-internal"],
+        VARIABLES[cat("dotnet|", dotnetVersion, "|product-version")],
+        runtimeVersionDir) ^
+    set runtimeTargetingPackVersionFile to when(ARGS["is-internal"],
+        split(VARIABLES[cat("runtime|", dotnetVersion, "|targeting-pack-version")], "-")[0],
+        VARIABLES[cat("runtime|", dotnetVersion, "|targeting-pack-version")]) ^
+    set aspnetTargetingPackVersionFile to when(ARGS["is-internal"],
+        split(VARIABLES[cat("aspnet|", dotnetVersion, "|targeting-pack-version")], "-")[0],
+        VARIABLES[cat("aspnet|", dotnetVersion, "|targeting-pack-version")]) ^
     set baseUrl to VARIABLES[cat("base-url|", dotnetVersion, "|", VARIABLES["branch"])] ^
     set legacyBaseUrl to VARIABLES[cat("base-url|public|maintenance-legacy|", VARIABLES["branch"])] ^
     set targetingPackBaseUrl to when(dotnetVersion = "3.1" || dotnetVersion = "5.0", legacyBaseUrl, baseUrl) ^
@@ -41,7 +50,7 @@
         ],
         [
             "filename": "apphost.rpm",
-            "url": cat(baseUrl, "/Runtime/", runtimeVersionVar, "/dotnet-apphost-pack-", runtimeVersionVar, "-",
+            "url": cat(baseUrl, "/Runtime/", runtimeVersionDir, "/dotnet-apphost-pack-", runtimeVersionFile, "-",
                 ARCH_SHORT, ".rpm", ARGS["url-suffix"]),
             "sha": VARIABLES[join(["runtime-apphost-pack", dotnetVersion, "linux-rpm", ARCH_SHORT, "sha"], "|")],
             "sha-var-name": commonShaVarName
@@ -49,7 +58,7 @@
         [
             "filename": "targeting-pack.rpm",
             "url": cat(targetingPackBaseUrl, "/Runtime/", VARIABLES[cat("runtime|", dotnetVersion, "|targeting-pack-version")],
-                "/dotnet-targeting-pack-", VARIABLES[cat("runtime|", dotnetVersion, "|targeting-pack-version")],
+                "/dotnet-targeting-pack-", runtimeTargetingPackVersionFile,
                 "-", ARCH_SHORT, ".rpm", targetingPackUrlSuffix),
             "sha": VARIABLES[join(["runtime-targeting-pack", dotnetVersion, "linux-rpm", ARCH_SHORT, "sha"], "|")],
             "sha-var-name": commonShaVarName
@@ -57,7 +66,7 @@
         [
             "filename": "aspnetcore-targeting-pack.rpm",
             "url": cat(targetingPackBaseUrl, "/aspnetcore/Runtime/", VARIABLES[cat("aspnet|", dotnetVersion, "|targeting-pack-version")],
-                "/aspnetcore-targeting-pack-", VARIABLES[cat("aspnet|", dotnetVersion, "|targeting-pack-version")],
+                "/aspnetcore-targeting-pack-", aspnetTargetingPackVersionFile,
                 when(dotnetVersion = "3.1" || dotnetVersion = "5.0", "", cat("-", ARCH_SHORT)), ".rpm", targetingPackUrlSuffix),
             "sha": VARIABLES[join(["aspnet-runtime-targeting-pack", dotnetVersion, "linux-rpm", ARCH_SHORT, "sha"], "|")],
             "sha-var-name": commonShaVarName

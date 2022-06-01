@@ -13,11 +13,11 @@ RUN curl -fSL --output dotnet.rpm https://dotnetbuilds.blob.core.windows.net/int
     && dotnet_sha512='ee41d1c800280f19f63466ae8db6d9384b69269a32b1262088c6925c7e4a9ae62f55035ad7359f7473854c17c8646eb6a324e2a1117fc8599c649e367ab89d46' \
     && echo "$dotnet_sha512  apphost.rpm" | sha512sum -c - \
     \
-    && curl -fSL --output targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/Runtime/6.0.6-servicing.22267.7/dotnet-targeting-pack-6.0.6-servicing.22267.7-x64.rpm$SAS_QUERY_STRING \
+    && curl -fSL --output targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/Runtime/6.0.6-servicing.22267.7/dotnet-targeting-pack-6.0.6-x64.rpm$SAS_QUERY_STRING \
     && dotnet_sha512='21cd49f38cd36153ba1fac459461cee5164779f4ca451a9e533c961c75bd9fa4f84cd2a375b6b602216a728741315a96537d07a49e1d6da6728652735c754e9e' \
     && echo "$dotnet_sha512  targeting-pack.rpm" | sha512sum -c - \
     \
-    && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/aspnetcore/Runtime/6.0.6-servicing.22268.5/aspnetcore-targeting-pack-6.0.6-servicing.22268.5-x64.rpm$SAS_QUERY_STRING \
+    && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/aspnetcore/Runtime/6.0.6-servicing.22268.5/aspnetcore-targeting-pack-6.0.6-x64.rpm$SAS_QUERY_STRING \
     && dotnet_sha512='9da9ce0c2c2f277325b96254cc861dfcca1d38e7ca33fa6f1c065dfb385524e4bd965febf1bd4193bc479e38200c8834f3ef9d0ff65aa2454e85b468a4e2d5ff' \
     && echo "$dotnet_sha512  aspnetcore-targeting-pack.rpm" | sha512sum -c - \
     \
