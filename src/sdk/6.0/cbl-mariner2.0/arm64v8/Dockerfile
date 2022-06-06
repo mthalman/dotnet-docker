@@ -5,9 +5,21 @@ FROM $REPO:6.0.6-cbl-mariner2.0-arm64v8 AS installer
 ARG SAS_QUERY_STRING
 
 # Install .NET SDK
-RUN curl -fSL --output dotnet.tar.gz https://dotnetbuilds.blob.core.windows.net/internal/Sdk/6.0.301-rtm.22277.4/dotnet-sdk-6.0.301-linux-arm64.tar.gz$SAS_QUERY_STRING \
-    && dotnet_sha512='978dd04f78ac3d6b594c47f1482bba0abe93f0b37379c1c46a2b9b33bdf5188576b055250546295de39bb22cba93ea9b31c31bb026a319ad1b3fc507db44481f' \
-    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c -
+RUN curl -fSL --output dotnet.rpm https://dotnetbuilds.blob.core.windows.net/internal/Sdk/6.0.301-rtm.22277.4/dotnet-sdk-6.0.301-aarch64.rpm$SAS_QUERY_STRING \
+    && dotnet_sha512='' \
+    && echo "$dotnet_sha512  dotnet.rpm" | sha512sum -c - \
+    \
+    && curl -fSL --output apphost.rpm https://dotnetbuilds.blob.core.windows.net/internal/Runtime/$DOTNET_VERSION/dotnet-apphost-pack-6.0.6-aarch64.rpm$SAS_QUERY_STRING \
+    && dotnet_sha512='' \
+    && echo "$dotnet_sha512  apphost.rpm" | sha512sum -c - \
+    \
+    && curl -fSL --output targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/Runtime/6.0.6-servicing.22267.7/dotnet-targeting-pack-6.0.6-aarch64.rpm$SAS_QUERY_STRING \
+    && dotnet_sha512='' \
+    && echo "$dotnet_sha512  targeting-pack.rpm" | sha512sum -c - \
+    \
+    && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/aspnetcore/Runtime/6.0.6-servicing.22268.5/aspnetcore-targeting-pack-6.0.6-aarch64.rpm$SAS_QUERY_STRING \
+    && dotnet_sha512='' \
+    && echo "$dotnet_sha512  aspnetcore-targeting-pack.rpm" | sha512sum -c -
 
 
 # .NET SDK image
@@ -33,11 +45,14 @@ RUN tdnf install -y \
         git \
     && tdnf clean all
 
-COPY --from=installer /dotnet.tar.gz /dotnet.tar.gz
+COPY --from=installer /dotnet.rpm /dotnet.rpm
+COPY --from=installer /apphost.rpm /apphost.rpm
+COPY --from=installer /targeting-pack.rpm /targeting-pack.rpm
+COPY --from=installer /aspnetcore-targeting-pack.rpm /aspnetcore-targeting-pack.rpm
 
 # Install .NET SDK
-RUN tar -oxzf dotnet.tar.gz -C /usr/share/dotnet ./packs ./sdk ./sdk-manifests ./templates ./LICENSE.txt ./ThirdPartyNotices.txt \
-    && rm dotnet.tar.gz \
+RUN tdnf install -y dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm \
+    && rm dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm \
     # Trigger first run experience by running arbitrary cmd
     && dotnet help
 

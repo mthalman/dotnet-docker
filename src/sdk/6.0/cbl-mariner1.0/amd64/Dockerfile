@@ -19,11 +19,7 @@ RUN curl -fSL --output dotnet.rpm https://dotnetbuilds.blob.core.windows.net/int
     \
     && curl -fSL --output aspnetcore-targeting-pack.rpm https://dotnetbuilds.blob.core.windows.net/internal/aspnetcore/Runtime/6.0.6-servicing.22268.5/aspnetcore-targeting-pack-6.0.6-x64.rpm$SAS_QUERY_STRING \
     && dotnet_sha512='9da9ce0c2c2f277325b96254cc861dfcca1d38e7ca33fa6f1c065dfb385524e4bd965febf1bd4193bc479e38200c8834f3ef9d0ff65aa2454e85b468a4e2d5ff' \
-    && echo "$dotnet_sha512  aspnetcore-targeting-pack.rpm" | sha512sum -c - \
-    \
-    && curl -fSL --output netstandard-targeting-pack.rpm https://dotnetcli.azureedge.net/dotnet/Runtime/3.1.0/netstandard-targeting-pack-2.1.0-x64.rpm \
-    && dotnet_sha512='fab41a86b9182b276992795247868c093890c6b3d5739376374a302430229624944998e054de0ff99bddd9459fc9543636df1ebd5392db069ae953ac17ea2880' \
-    && echo "$dotnet_sha512  netstandard-targeting-pack.rpm" | sha512sum -c -
+    && echo "$dotnet_sha512  aspnetcore-targeting-pack.rpm" | sha512sum -c -
 
 
 # .NET SDK image
@@ -53,11 +49,10 @@ COPY --from=installer /dotnet.rpm /dotnet.rpm
 COPY --from=installer /apphost.rpm /apphost.rpm
 COPY --from=installer /targeting-pack.rpm /targeting-pack.rpm
 COPY --from=installer /aspnetcore-targeting-pack.rpm /aspnetcore-targeting-pack.rpm
-COPY --from=installer /netstandard-targeting-pack.rpm /netstandard-targeting-pack.rpm
 
 # Install .NET SDK
-RUN rpm --install dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm netstandard-targeting-pack.rpm \
-    && rm dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm netstandard-targeting-pack.rpm \
+RUN rpm --install dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm \
+    && rm dotnet.rpm apphost.rpm targeting-pack.rpm aspnetcore-targeting-pack.rpm \
     # Trigger first run experience by running arbitrary cmd
     && dotnet help
 
