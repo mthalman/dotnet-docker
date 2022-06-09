@@ -49,7 +49,11 @@ param(
 
     # SAS query string used to access files in the checksum blob container
     [string]
-    $ChecksumSasQueryString
+    $ChecksumSasQueryString,
+
+    # Override the default target branch where the PR is to be merged
+    [string]
+    $Branch
 )
 
 $updateDepsArgs = @($ProductVersion)
@@ -96,8 +100,11 @@ if ($versionSourceName) {
     $updateDepsArgs += "--version-source-name=$versionSourceName"
 }
 
-$branch = & $PSScriptRoot/Get-Branch.ps1
-$updateDepsArgs += "--branch=$branch"
+if (-not $Branch) {
+    $Branch = & $PSScriptRoot/Get-Branch.ps1
+}
+
+$updateDepsArgs += "--branch=$Branch"
 
 if ($PrintArgsVariableOnly) {
     Write-Host "##vso[task.setvariable variable=updateDepsArgs]$updateDepsArgs"
