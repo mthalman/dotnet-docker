@@ -1,6 +1,9 @@
 parameters:
   useInternalBuild: false
 
+  # Comma-delimited list of SDK versions to target (overrides the use of channel var to determine latest version)
+  sdkVersions: null
+
 steps:
 - script: $(engPath)/get-drop-versions.sh $(channel) ${{parameters.useInternalBuild}} "$(dotnetbuilds-internal-container-read-token)" "$(dn-bot-devdiv-dnceng-rw-code-pat)"
   displayName: Get Versions

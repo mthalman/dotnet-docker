@@ -9,6 +9,7 @@ channel=$1
 useInternalBuild=$2
 blobStorageSasQueryString=$3
 azdoVersionsRepoInfoAccessToken=$4
+sdkVersions=$5
 
 sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends libxml2-utils
@@ -85,6 +86,8 @@ if [ -z "$aspnetVer" ]; then
     exit 1
 fi
 
-echo "##vso[task.setvariable variable=sdkVer]$sdkVer"
+echo "##vso[task.setvariable variable=sdkVer]
+
+echo "##vso[task.setvariable variable=sdkVer]$sdkVersions"
 echo "##vso[task.setvariable variable=runtimeVer]$runtimeVer"
 echo "##vso[task.setvariable variable=aspnetVer]$aspnetVer"
