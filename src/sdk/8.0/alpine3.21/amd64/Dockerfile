@@ -1,5 +1,5 @@
 ARG REPO=mcr.microsoft.com/dotnet/aspnet
-FROM $REPO:8.0.13-alpine3.21-amd64
+FROM $REPO:9.0.2-alpine3.21-amd64@sha256:027e1bf2eb91493678fe0cb69cfbb9c98208e910305ca3d86faac6392a004074
 
 ENV \
     # Do not generate certificate
