@@ -24,7 +24,7 @@ RUN powershell -Command `
 
 
 # ASP.NET Core image
-FROM $REPO:8.0.13-nanoserver-ltsc2022
+FROM $REPO:9.0.2-nanoserver-ltsc2022@sha256:b2521668edd124d51caefd68a7f8a47102475384d69826df776666e81d2d3e40
 
 # ASP.NET Core version
 ENV ASPNET_VERSION=8.0.13

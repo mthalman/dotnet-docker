@@ -20,7 +20,7 @@ RUN aspnetcore_version=8.0.13 \
 
 
 # ASP.NET Core image
-FROM $REPO:8.0.13-azurelinux3.0-distroless-amd64
+FROM $REPO:9.0.2-azurelinux3.0-distroless-amd64@sha256:de2acf5edae714e0f0029c8819d33cd7d7ef6334b9ecd0389f9468af55cca176
 
 # ASP.NET Core version
 ENV ASPNET_VERSION=8.0.13
