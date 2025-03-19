@@ -14,7 +14,7 @@ RUN dotnet_version=8.0.13 \
 
 
 # .NET runtime image
-FROM $REPO:8.0.13-bookworm-slim-arm32v7
+FROM $REPO:9.0.2-bookworm-slim-arm32v7@sha256:6b6abddacb54f6abeee7dcf488dd6bf83f4cbe1d32580f8a264626e2131ad844
 
 # .NET Runtime version
 ENV DOTNET_VERSION=8.0.13

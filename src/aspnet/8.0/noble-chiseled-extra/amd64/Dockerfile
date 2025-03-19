@@ -14,7 +14,7 @@ RUN aspnetcore_version=8.0.13 \
 
 
 # ASP.NET Core image
-FROM $REPO:8.0.13-noble-chiseled-extra-amd64
+FROM $REPO:9.0.2-noble-chiseled-extra-amd64@sha256:2d5560ad55285d67b9fed641da232f91eb2c046332ab0d3681e1511199de0342
 
 # ASP.NET Core version
 ENV ASPNET_VERSION=8.0.13

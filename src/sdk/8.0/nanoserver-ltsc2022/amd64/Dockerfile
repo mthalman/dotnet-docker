@@ -56,7 +56,7 @@ RUN powershell -Command " `
             | Remove-Item -Force -Recurse"
 
 # SDK image
-FROM $REPO:8.0.13-nanoserver-ltsc2022
+FROM $REPO:9.0.2-nanoserver-ltsc2022@sha256:c939c26778eb1fdca7d7105fee6d4499d66bc63b4f90b3684a6af9ff48128cb3
 
 ENV `
     # Do not generate certificate
