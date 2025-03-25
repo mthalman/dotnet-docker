@@ -1,0 +1,135 @@
+# A wrapper template around the common build-test-publish-repo template with settings
+# specific to the .NET team's infrastructure.
+
+parameters:
+  noCache: false
+  internalProjectName: null
+  publicProjectName: null
+  isInternalServicingValidation: false
+  customGenerateMatrixInitSteps: []
+  buildMatrixCustomBuildLegGroupArgs: ""
+  testMatrixCustomBuildLegGroupArgs: ""
+  customCopyBaseImagesInitSteps: []
+  customBuildInitSteps: []
+  customTestInitSteps: []
+  customPublishInitSteps: []
+  windowsAmdBuildJobTimeout: 60
+  windowsAmdTestJobTimeout: 60
+  linuxAmdBuildJobTimeout: 60
+  linuxArmBuildJobTimeout: 60
+  linuxAmd64Pool: ""
+  buildMatrixType: platformDependencyGraph
+  testMatrixType: platformVersionedOs
+
+stages:
+- template: /eng/common/templates/stages/build-and-test.yml@self
+  parameters:
+    noCache: ${{ parameters.noCache }}
+    internalProjectName: ${{ parameters.internalProjectName }}
+    publicProjectName: ${{ parameters.publicProjectName }}
+    isInternalServicingValidation: ${{ parameters.isInternalServicingValidation }}
+    customGenerateMatrixInitSteps: ${{ parameters.customGenerateMatrixInitSteps }}
+    buildMatrixCustomBuildLegGroupArgs: ${{ parameters.buildMatrixCustomBuildLegGroupArgs }}
+    testMatrixCustomBuildLegGroupArgs: ${{ parameters.testMatrixCustomBuildLegGroupArgs }}
+    customCopyBaseImagesInitSteps: ${{ parameters.customCopyBaseImagesInitSteps}}
+    customBuildInitSteps: ${{ parameters.customBuildInitSteps }}
+    customTestInitSteps: ${{ parameters.customTestInitSteps }}
+    customPublishInitSteps:
+    - pwsh: |
+        # When reporting the repo name in the publish notification, we don't want to include
+        # the org part of the repo name (e.g. we want "dotnet-docker", not "dotnet-dotnet-docker").
+        # This also accounts for the different separators between AzDO and GitHub repo names.
+
+        $repoName = "$(Build.Repository.Name)"
+
+        $orgSeparatorIndex = $repoName.IndexOf("/")
+        if ($orgSeparatorIndex -eq -1) {
+          $orgSeparatorIndex = $repoName.IndexOf("-")
+        }
+
+        if ($orgSeparatorIndex -ge 0) {
+          $repoName = $repoName.Substring($orgSeparatorIndex + 1)
+        }
+        echo "##vso[task.setvariable variable=publishNotificationRepoName]$repoName"
+      displayName: "Set Custom Repo Name Var"
+    - ${{ parameters.customPublishInitSteps }}
+    windowsAmdBuildJobTimeout: ${{ parameters.windowsAmdBuildJobTimeout }}
+    windowsAmdTestJobTimeout: ${{ parameters.windowsAmdTestJobTimeout }}
+    linuxAmdBuildJobTimeout: ${{ parameters.linuxAmdBuildJobTimeout }}
+    linuxArmBuildJobTimeout: ${{ parameters.linuxArmBuildJobTimeout }}
+    buildMatrixType: ${{ parameters.buildMatrixType }}
+    testMatrixType: ${{ parameters.testMatrixType }}
+
+    internalVersionsRepoRef: InternalVersionsRepo
+    publicVersionsRepoRef: PublicVersionsRepo
+
+    ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+      customPublishVariables:
+      - group: DotNet-AllOrgs-Darc-Pats
+
+    # Linux AMD64
+    linuxAmd64Pool:
+      ${{ if ne(parameters.linuxAmd64Pool, '') }}:
+        ${{ parameters.linuxAmd64Pool }}
+      ${{ elseif eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        vmImage: $(defaultLinuxAmd64PoolImage)
+      ${{ elseif eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        name: $(linuxAmd64InternalPoolName)
+        image: $(linuxAmd64InternalPoolImage)
+        os: linux
+
+    # Linux Arm64
+    linuxArm64Pool:
+      os: linux
+      hostArchitecture: Arm64
+      image: $(linuxArm64PoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        name: $(linuxArm64PublicPoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        name: $(linuxArm64InternalPoolName)
+
+    # Linux Arm32
+    linuxArm32Pool:
+      os: linux
+      hostArchitecture: Arm64
+      image: $(linuxArm32PoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        name: $(linuxArm32PublicPoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        name: $(linuxArm32InternalPoolName)
+
+    # Windows Server 2016
+    windows2016Pool:
+      os: windows
+      name: $(windowsServer2016PoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        image: $(windowsServer2016PublicPoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        image: $(windowsServer2016InternalPoolImage)
+
+    # Windows Server 2019 (1809)
+    windows1809Pool:
+      os: windows
+      name: $(windowsServer2019PoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        image: $(windowsServer2019PublicPoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        image: $(windowsServer2019InternalPoolImage)
+
+    # Windows Server 2022
+    windows2022Pool:
+      os: windows
+      name: $(windowsServer2022PoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        image: $(windowsServer2022PublicPoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        image: $(windowsServer2022InternalPoolImage)
+
+    # Windows Server 2025
+    windows2025Pool:
+      os: windows
+      name: $(windowsServer2025PoolName)
+      ${{ if eq(variables['System.TeamProject'], parameters.publicProjectName) }}:
+        image: $(windowsServer2025PublicPoolImage)
+      ${{ if eq(variables['System.TeamProject'], parameters.internalProjectName) }}:
+        image: $(windowsServer2025InternalPoolImage)
