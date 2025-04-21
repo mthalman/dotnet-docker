@@ -1,21 +1,14 @@
-stages:
-- stage: A
-  jobs:
-  - job: JobA1
-    steps:
-    - script: echo "This is JobA1"
+trigger: none
+pr: none
 
-  - job: JobA2
-    steps:
-    - script: echo "This is JobA2"
+variables:
+  imageTag: v1.2
 
-- stage: B
-  jobs:
-  - job: JobB1
-    dependsOn: A.JobA1  # depends on a job in stage A
-    steps:
-    - script: echo "This is JobB1, which depends on JobA1"
-
-  - job: JobB2
-    steps:
-    - script: echo "This is JobB2, which runs in parallel with JobA1"
+parameters:
+  - name: builds
+    type: object
+    default:
+      - appName: frontend
+        imageTag: ${{ variables.imageTag }}  # ✅ Works!
+      - appName: backend
+        imageTag: ${{ variables.imageTag }}  # ✅ Works!
