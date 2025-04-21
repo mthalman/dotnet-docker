@@ -1,33 +1,21 @@
-trigger:
-  batch: true
-  branches:
-    include:
-    - nightly
-  paths:
-    include:
-    - manifest.json
-    - manifest.versions.json
-    - src/*
-pr: none
+stages:
+- stage: A
+  jobs:
+  - job: JobA1
+    steps:
+    - script: echo "This is JobA1"
 
-resources:
-  repositories:
-  - repository: InternalVersionsRepo
-    type: github
-    endpoint: dotnet
-    name: dotnet/versions
+  - job: JobA2
+    steps:
+    - script: echo "This is JobA2"
 
-variables:
-- template: /eng/pipelines/variables/core.yml@self
-- name: officialBranches
-  # comma-delimited list of branch names
-  value: nightly
+- stage: B
+  jobs:
+  - job: JobB1
+    dependsOn: A.JobA1  # depends on a job in stage A
+    steps:
+    - script: echo "This is JobB1, which depends on JobA1"
 
-extends:
-  template: /eng/common/templates/1es-official.yml@self
-  parameters:
-    stages:
-    - template: /eng/pipelines/stages/build-test-publish-repo.yml@self
-      parameters:
-        internalProjectName: ${{ variables.internalProjectName }}
-        publicProjectName: ${{ variables.publicProjectName }}
+  - job: JobB2
+    steps:
+    - script: echo "This is JobB2, which runs in parallel with JobA1"
